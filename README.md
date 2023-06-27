@@ -1,5 +1,5 @@
 # SONIDITOS
-Upload a sound and get download links ready to share for the original file and a small .mp3 compressed version ready for sharing.
+Upload a sound and get download links from the original file and a small .mp3 compressed version ready for sharing.
 
 Made with:
 Next JS (trying server-actions), Typescript & Supabase
