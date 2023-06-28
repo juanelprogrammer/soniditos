@@ -10,7 +10,7 @@ export async function uploadTo(form: FormData) {
 
   const { data, error } = await supabase.storage
     .from('sounds')
-    .upload(name ? name + randomUUID() : 'noname' + randomUUID(), sound, {
+    .upload(name ? `${name} ${randomUUID()}` : `noname ${randomUUID()}`, sound, {
       contentType: 'sound/mp3',
     })
   if (error) {

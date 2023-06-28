@@ -3,7 +3,7 @@ import React from 'react'
 import { useState, ChangeEvent } from 'react'
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
 import { uploadTo } from './uploadTo'
-import { UUID } from 'crypto'
+import path from 'path'
 
 const Uploader = () => {
   const [bussy, setBussy] = useState<boolean>(false)
@@ -20,7 +20,6 @@ const Uploader = () => {
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
-      console.log(e.target.files[0])
       setFile(e.target.files[0])
     }
     return
@@ -31,15 +30,15 @@ const Uploader = () => {
     setBussy(true)
     const { convertedSound, error: convertError } = await handleConvert()
     if (!convertedSound) return convertError
+    const originalName = path.parse(file.name).name
     // una vez convertido tiene que subir el original (file) y el convertido (convertedSound)
-    const {publicUrl, error} = await handleUploadSound(convertedSound.buffer, {
+    const {publicUrl, error} = await handleUploadSound(convertedSound, {
       type: 'audio/mp3',
-      name: file.name,
+      name: originalName,
     })
     if(!publicUrl) return
     if(error) return
     setUploading(false)
-    console.log(publicUrl)
     setAudioSrc(publicUrl)
     setFile(null)
   }
@@ -64,7 +63,8 @@ const Uploader = () => {
       'libmp3lame',
       'output.mp3'
     )
-    const convertedSound: Uint8Array = ffmpeg.FS('readFile', 'output.mp3')
+    const rawFile: Uint8Array = ffmpeg.FS('readFile', 'output.mp3')
+    const convertedSound = new File([rawFile], file.name, { type: 'audio/mp3' })
     console.log(new File([convertedSound], file.name, { type: 'audio/mp3' }))
     ffmpeg.exit()
     setConverting(false)
@@ -73,12 +73,12 @@ const Uploader = () => {
   }
 
   async function handleUploadSound(
-    file: ArrayBuffer,
+    file: File,
     metadata: { type: string; name: string }
   ) {
     setUploading(true)
     const form = new FormData()
-    form.append('sound', new Blob([file]), metadata.name)
+    form.append('sound', file, metadata.name)
     form.append('name', metadata.name)
     form.append('type', metadata.type)
 
