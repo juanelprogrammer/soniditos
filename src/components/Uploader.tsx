@@ -6,16 +6,20 @@ import { uploadTo } from './uploadTo'
 import path from 'path'
 
 const Uploader = () => {
-  const [bussy, setBussy] = useState<boolean>(false)
-  const [downloadLinks, setDownloadLinks] = useState<string[]>()
-  const [converting, setConverting] = useState<boolean>(false)
-  const [uploading, setUploading] = useState<boolean>(false)
-  const [audioSrc, setAudioSrc] = useState<string>('')
+  const [bussy, setBussy] = useState(false)
+  const [downloadLinks, setDownloadLinks] = useState({
+    original: '',
+    converted: '',
+  })
+  const [converting, setConverting] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [audioSrc, setAudioSrc] = useState('')
   const [file, setFile] = useState<File | null>(null)
+
   const ffmpeg = createFFmpeg({
     // log: true,
     mainName: 'main',
-    corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
+    corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js', // Would be better to serve this file from own API
   })
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -25,6 +29,12 @@ const Uploader = () => {
     return
   }
 
+  function copyToClipboard(url: string) {
+    if(!url) return
+    navigator.clipboard.writeText(url)
+    alert('Copiado al portapapeles')
+  }
+
   async function handleUpload() {
     if (!file) return
     setBussy(true)
@@ -32,14 +42,15 @@ const Uploader = () => {
     if (!convertedSound) return convertError
     const originalName = path.parse(file.name).name
     // una vez convertido tiene que subir el original (file) y el convertido (convertedSound)
-    const {publicUrl, error} = await handleUploadSound(convertedSound, {
+    const { publicUrl, error } = await handleUploadSound(convertedSound, {
       type: 'audio/mp3',
       name: originalName,
     })
-    if(!publicUrl) return
-    if(error) return
+    if (!publicUrl) return
+    if (error) return
     setUploading(false)
-    setAudioSrc(publicUrl)
+    setAudioSrc(publicUrl) // src to audio tag
+    setDownloadLinks({ ...downloadLinks, converted: publicUrl })
     setFile(null)
   }
 
@@ -63,7 +74,7 @@ const Uploader = () => {
       'libmp3lame',
       'output.mp3'
     )
-    const rawFile: Uint8Array = ffmpeg.FS('readFile', 'output.mp3')
+    const rawFile = ffmpeg.FS('readFile', 'output.mp3')
     const convertedSound = new File([rawFile], file.name, { type: 'audio/mp3' })
     console.log(new File([convertedSound], file.name, { type: 'audio/mp3' }))
     ffmpeg.exit()
@@ -88,7 +99,7 @@ const Uploader = () => {
   return (
     <div className='flex flex-col mt-4'>
       <div className='flex flex-col items-center'>
-        {audioSrc ? <audio controls src={audioSrc} /> : ''}
+        {audioSrc ? <audio className='mb-4' controls src={audioSrc} /> : ''}
         <input
           disabled={bussy}
           onChange={handleFileChange}
@@ -96,9 +107,26 @@ const Uploader = () => {
           accept='audio/*'
         />
       </div>
-      <button className='bg-[#75aadb] rounded mt-2' onClick={handleUpload}>
-        {converting ? 'Convirtiendo...' : uploading ? 'Subiendo...':'Subir'}
+      <button
+        style={{cursor: bussy ? 'not-allowed' : 'pointer'}}
+        disabled={converting || uploading}
+        className='bg-[#75aadb] rounded mt-2 p-2'
+        onClick={handleUpload}
+      >
+        {converting ? 'Convirtiendo...' : uploading ? 'Subiendo...' : 'Subir'}
       </button>
+      {downloadLinks.converted ? (
+        <div className='flex flex-col items-center'>
+          <a className='p-2 bg-green-600 bg-opacity-70 rounded mt-2 w-full text-center' href={downloadLinks.converted} download={true}>
+            Descargar
+          </a>
+          <button className='p-2 bg-gray-200 rounded mt-2 w-full text-center' onClick={() => copyToClipboard(downloadLinks.converted)}>
+            Copiar link
+          </button>
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   )
 }
