@@ -13,7 +13,7 @@ const Uploader = () => {
   const [audioSrc, setAudioSrc] = useState<string>('')
   const [file, setFile] = useState<File | null>(null)
   const ffmpeg = createFFmpeg({
-    log: true,
+    // log: true,
     mainName: 'main',
     corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
   })
@@ -39,6 +39,7 @@ const Uploader = () => {
     if(!publicUrl) return
     if(error) return
     setUploading(false)
+    console.log(publicUrl)
     setAudioSrc(publicUrl)
     setFile(null)
   }
@@ -64,6 +65,7 @@ const Uploader = () => {
       'output.mp3'
     )
     const convertedSound: Uint8Array = ffmpeg.FS('readFile', 'output.mp3')
+    console.log(new File([convertedSound], file.name, { type: 'audio/mp3' }))
     ffmpeg.exit()
     setConverting(false)
     if (!convertedSound) return { error: 'Error reading sound' }
@@ -77,6 +79,9 @@ const Uploader = () => {
     setUploading(true)
     const form = new FormData()
     form.append('sound', new Blob([file]), metadata.name)
+    form.append('name', metadata.name)
+    form.append('type', metadata.type)
+
     return await uploadTo(form)
   }
 

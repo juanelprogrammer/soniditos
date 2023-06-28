@@ -1,7 +1,7 @@
 [ ] Toasts
 [ ] Change everything to beautiful mantine.dev
-[ ] .env supabase data
-[ ] 
+[x] .env supabase data
+[ ] file names (uuid)
 
 
 [ ] authenticated user
