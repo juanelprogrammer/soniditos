@@ -1,8 +1,10 @@
 # SONIDITOS
 Upload a sound and get download links from the original file and a small .mp3 compressed version ready for sharing.
 
+[SONIDITOS](https://soniditos.vercel.app/)
+
 Made with:
-Next JS with Tailwind, Typescript & Supabase
+Next JS (checking out server actions) with Tailwind, Typescript & Supabase
 
 This is the first babystep on creating a site for buying and selling any kind of sounds, focused on music production.
 In this project I'm testing FFmpeg codec executing in the client, so that my (future) server doesn't make those heavy processes.
