@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       contentType: 'sound/mp3',
     })
   if (error) {
+    console.log(error)
     return NextResponse.json({ error: 'Error uploading' }, { status: 400 })
   }
   if(!data) return NextResponse.json({ error: 'Error updating file' }, { status: 400 })

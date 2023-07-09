@@ -1,7 +1,7 @@
 # SONIDITOS
 Upload a sound and get download links from the original file and a small .mp3 compressed version ready for sharing.
 
-[SONIDITOS](https://soniditos.vercel.app/)
+[VISIT](https://soniditos.vercel.app/)
 
 Made with:
 Next JS (checking out server actions) with Tailwind, Typescript & Supabase
