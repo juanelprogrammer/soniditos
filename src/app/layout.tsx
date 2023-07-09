@@ -23,7 +23,7 @@ export default function RootLayout({
                 Soniditos
               </h1>
             </div>
-            <Link className='bg-[#fcbf45] p-2 rounded mr-2 font-medium' href='/login'>Login</Link>
+            {/* <Link className='bg-[#fcbf45] p-2 rounded mr-2 font-medium' href='/login'>Login</Link> */}
           </div>
           <main>{children}</main>
         </div>
